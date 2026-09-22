@@ -16,7 +16,7 @@ services:
       - { key: FASTAPI_URL, value: "https://fashionstore-ia.onrender.com" }
       - { key: PUBLIC_API_URL, value: "https://fashionstore-api.onrender.com" }
       - { key: PUBLIC_WEB_URL, value: "https://fashionstore-web.onrender.com" }
-      - { key: PAGOS_MODO, value: produccion }
+      - { key: PAGOS_MODO, value: sandbox }
       - { key: TIPO_CAMBIO_USD, value: "6.96" }
       - { key: PAGO_HOLD_MINUTOS, value: "30" }
       - { key: RESERVA_MAX_DIAS, value: "7" }
@@ -29,7 +29,6 @@ services:
       - { key: LIBELULA_APPKEY, sync: false }         # dejar vacio si no tienes cuenta comercial Libelula
       - { key: LIBELULA_BASE_URL, value: "https://api.libelula.bo" }
       - { key: LIBELULA_WEBHOOK_TOKEN, generateValue: true }
-
   - type: web
     name: fashionstore-ia
     runtime: docker
@@ -38,7 +37,6 @@ services:
       - { key: DATABASE_URL, sync: false }
       - { key: DATABASE_SSL, value: "true" }
       - { key: GEMINI_API_KEY, sync: false }          # opcional: sin esto, los reportes con IA quedan desactivados
-
   - type: web
     name: fashionstore-web
     runtime: static
