@@ -29,7 +29,7 @@ export default function Campana() {
     <div ref={ref} style={{ position: 'relative' }}>
       <button className="icon-btn" onClick={abrir} aria-label={`Notificaciones (${n} sin leer)`}><Bell size={21} />{n > 0 && <span className="contador">{n > 9 ? '9+' : n}</span>}</button>
       {abierto && (
-        <div className="menu-pop" style={{ width: 340, maxHeight: 420, overflowY: 'auto' }}>
+        <div className="menu-pop notificaciones-pop" style={{ width: 340, maxHeight: 420, overflowY: 'auto' }}>
           <div className="row between" style={{ padding: '10px 16px', borderBottom: '1px solid var(--linea)' }}><b>Notificaciones</b><button className="btn sm ghost" onClick={async () => { await post('/notificaciones/leer-todas'); setN(0); setLista(lista.map((x) => ({ ...x, leida: true }))); }}>Marcar todas</button></div>
           {lista.length === 0 && <div className="vacio" style={{ padding: 24 }}>Sin notificaciones</div>}
           {lista.map((x) => <button key={x.id} onClick={() => ir(x)} style={{ background: x.leida ? undefined : 'var(--marca-suave)', alignItems: 'flex-start', flexDirection: 'column', gap: 2 }}><b style={{ fontSize: '.88rem' }}>{x.titulo}</b><span className="small muted">{x.mensaje}</span><span className="small" style={{ color: 'var(--marca)' }}>{hace(x.creadaEn)}</span></button>)}
