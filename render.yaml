@@ -1,0 +1,61 @@
+# Blueprint de Render (https://render.com) para desplegar en la nube: New + -> Blueprint -> este repositorio.
+# La base de datos debe permitir CREATE ROLE (Neon, Supabase, Railway o un PostgreSQL propio). Ver docs/DESPLIEGUE-NUBE.md
+#
+# Al hacer "New + -> Blueprint", Render te va a pedir uno por uno los valores marcados
+# como "sync: false" (secretos y URLs). Ten a mano: tu DATABASE_URL de Neon/Supabase,
+# tu STRIPE_SECRET_KEY, tu PAYPAL_CLIENT_ID/PAYPAL_SECRET.
+services:
+  - type: web
+    name: fashionstore-api
+    runtime: docker
+    rootDir: backend-nest
+    envVars:
+      - { key: DATABASE_URL, sync: false }          # cadena de conexion de tu PostgreSQL en la nube
+      - { key: DATABASE_SSL, value: "true" }
+      - { key: JWT_SECRET, generateValue: true }
+      - { key: FASTAPI_URL, value: "https://fashionstore-ia.onrender.com" }
+      - { key: PUBLIC_API_URL, value: "https://fashionstore-api.onrender.com" }
+      - { key: PUBLIC_WEB_URL, value: "https://fashionstore-web.onrender.com" }
+      - { key: PAGOS_MODO, value: produccion }
+      - { key: TIPO_CAMBIO_USD, value: "6.96" }
+      - { key: PAGO_HOLD_MINUTOS, value: "30" }
+      - { key: RESERVA_MAX_DIAS, value: "7" }
+      - { key: RESERVA_GRACIA_HORAS, value: "2" }
+      - { key: STRIPE_SECRET_KEY, sync: false }       # sk_test_... (dashboard.stripe.com > Developers > API keys)
+      - { key: STRIPE_WEBHOOK_SECRET, sync: false }   # whsec_... (lo consigues DESPUES de crear el webhook, ver guia)
+      - { key: PAYPAL_CLIENT_ID, sync: false }
+      - { key: PAYPAL_SECRET, sync: false }
+      - { key: PAYPAL_BASE_URL, value: "https://api-m.sandbox.paypal.com" }
+      - { key: LIBELULA_APPKEY, sync: false }         # dejar vacio si no tienes cuenta comercial Libelula
+      - { key: LIBELULA_BASE_URL, value: "https://api.libelula.bo" }
+      - { key: LIBELULA_WEBHOOK_TOKEN, generateValue: true }
+  - type: web
+    name: fashionstore-ia
+    runtime: docker
+    rootDir: backend-fastapi
+    envVars:
+      - { key: DATABASE_URL, sync: false }
+      - { key: DATABASE_SSL, value: "true" }
+      - { key: GEMINI_API_KEY, sync: false }          # opcional: sin esto, los reportes con IA quedan desactivados
+  - type: web
+    name: fashionstore-web
+    runtime: static
+    rootDir: frontend-web
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - { type: rewrite, source: /*, destination: /index.html }
+    envVars:
+      - { key: VITE_API_URL, value: "https://fashionstore-api.onrender.com" }
+  - type: web
+    name: fashionstore-postgrest
+    runtime: image
+    image:
+      url: docker.io/postgrest/postgrest:latest
+    envVars:
+      - { key: PORT, value: "10000" }
+      - { key: PGRST_SERVER_PORT, value: "10000" }
+      - { key: PGRST_DB_URI, sync: false }            # pega la MISMA DATABASE_URL de Neon tal cual (con sslmode=require)
+      - { key: PGRST_DB_SCHEMAS, value: "public" }
+      - { key: PGRST_DB_ANON_ROLE, value: "web_anon" }
+      - { key: PGRST_JWT_SECRET, sync: false }        # debe ser IDENTICO al JWT_SECRET de fashionstore-api

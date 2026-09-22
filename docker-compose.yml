@@ -1,0 +1,59 @@
+# Alternativa a iniciar.py: todo el backend en contenedores.   docker compose up --build
+# Web: http://localhost:8080 · API: http://localhost:3000/api/health · IA: http://localhost:8000/docs · PostgREST: http://localhost:3001
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fashionstore
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    ports: ["5433:5432"]
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U postgres -d fashionstore"], interval: 5s, retries: 20 }
+
+  api:
+    build: ./backend-nest
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/fashionstore
+      JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave-secreta-antes-de-produccion-32c}
+      FASTAPI_URL: http://ia:8000
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
+      PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-http://localhost:8080}
+      PAGOS_MODO: ${PAGOS_MODO:-sandbox}
+    ports: ["3000:3000"]
+    volumes: ["uploads:/app/public/uploads"]
+
+  ia:
+    build: ./backend-fastapi
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/fashionstore
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ASSETS_DIR: /assets
+    volumes: ["./backend-nest/public:/assets:ro"]
+    ports: ["8000:8000"]
+
+  postgrest:
+    image: postgrest/postgrest:latest
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      PGRST_DB_URI: postgres://authenticator:authenticator_dev_pw@db:5432/fashionstore
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave-secreta-antes-de-produccion-32c}
+    ports: ["3001:3000"]
+
+  web:
+    build:
+      context: ./frontend-web
+      args: { VITE_API_URL: "${PUBLIC_API_URL:-http://localhost:3000}" }
+    depends_on: [api]
+    ports: ["8080:80"]
+
+volumes:
+  dbdata:
+  uploads:

@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "FashionStore",
+    "slug": "fashionstore",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "fashionstore",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#7a2f45"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "bo.fashionstore.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "FashionStore usa la cámara para el vestidor virtual (probarte prendas con realidad aumentada).",
+        "NSPhotoLibraryAddUsageDescription": "Para guardar las fotos de tu vestidor virtual.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "android": {
+      "package": "bo.fashionstore.app",
+      "permissions": [
+        "CAMERA",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#7a2f45",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "FashionStore usa la cámara para el vestidor virtual."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "savePhotosPermission": "Para guardar las fotos de tu vestidor virtual.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ]
+    ]
+  }
+}

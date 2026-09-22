@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.runtime/
+logs/
+.fashionstore.json
+.env
+*.log
+__pycache__/
+.venv/
+backend-nest/public/uploads/*
+!backend-nest/public/uploads/.gitkeep
+mobile-app/.expo/
+mobile-app/ios/
+mobile-app/android/
