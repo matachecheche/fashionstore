@@ -29,6 +29,7 @@ services:
       - { key: LIBELULA_APPKEY, sync: false }         # dejar vacio si no tienes cuenta comercial Libelula
       - { key: LIBELULA_BASE_URL, value: "https://api.libelula.bo" }
       - { key: LIBELULA_WEBHOOK_TOKEN, generateValue: true }
+
   - type: web
     name: fashionstore-ia
     runtime: docker
@@ -37,6 +38,7 @@ services:
       - { key: DATABASE_URL, sync: false }
       - { key: DATABASE_SSL, value: "true" }
       - { key: GEMINI_API_KEY, sync: false }          # opcional: sin esto, los reportes con IA quedan desactivados
+
   - type: web
     name: fashionstore-web
     runtime: static
@@ -47,15 +49,3 @@ services:
       - { type: rewrite, source: /*, destination: /index.html }
     envVars:
       - { key: VITE_API_URL, value: "https://fashionstore-api.onrender.com" }
-  - type: web
-    name: fashionstore-postgrest
-    runtime: image
-    image:
-      url: docker.io/postgrest/postgrest:latest
-    envVars:
-      - { key: PORT, value: "10000" }
-      - { key: PGRST_SERVER_PORT, value: "10000" }
-      - { key: PGRST_DB_URI, sync: false }            # pega la MISMA DATABASE_URL de Neon tal cual (con sslmode=require)
-      - { key: PGRST_DB_SCHEMAS, value: "public" }
-      - { key: PGRST_DB_ANON_ROLE, value: "web_anon" }
-      - { key: PGRST_JWT_SECRET, sync: false }        # debe ser IDENTICO al JWT_SECRET de fashionstore-api
